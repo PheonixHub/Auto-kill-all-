@@ -36,7 +36,7 @@ if getgenv().AutoKillGlobal then
     task.spawn(function()
         while getgenv().AutoKillGlobal do
             pcall(attackAllPlayers)
-            task.wait(0.001)
+            task.wait(0.08)
         end
         print("🛑 AutoKill Global DESACTIVADO")
     end)
