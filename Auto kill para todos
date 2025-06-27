@@ -1,0 +1,46 @@
+getgenv().AutoKillGlobal = not getgenv().AutoKillGlobal
+
+if getgenv().AutoKillGlobal then
+    print("☠️ AutoKill Global ACTIVADO")
+
+    local player = game.Players.LocalPlayer
+
+    local function getHand()
+        local char = player.Character or player.CharacterAdded:Wait()
+        return char:FindFirstChild("RightHand") or char:FindFirstChild("Right Arm")
+    end
+
+    local function attackAllPlayers()
+        local hand = getHand()
+        if not hand or not hand:IsDescendantOf(workspace) then return end
+
+        for _, other in pairs(game.Players:GetPlayers()) do
+            if other ~= player and other.Character then
+                local targetPart = other.Character:FindFirstChild("HumanoidRootPart")
+                if targetPart and targetPart:IsDescendantOf(workspace) then
+                    for _ = 1, 2 do
+                        firetouchinterest(hand, targetPart, 0)
+                        task.wait(0.01)
+                        firetouchinterest(hand, targetPart, 1)
+                    end
+                end
+            end
+        end
+    end
+
+    player.CharacterAdded:Connect(function()
+        task.wait(1)
+        -- Ya no se equipa el Punch aquí
+    end)
+
+    task.spawn(function()
+        while getgenv().AutoKillGlobal do
+            pcall(attackAllPlayers)
+            task.wait(0.001)
+        end
+        print("🛑 AutoKill Global DESACTIVADO")
+    end)
+
+else
+    print("🛑 AutoKill Global DESACTIVADO")
+end
