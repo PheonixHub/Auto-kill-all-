@@ -10,33 +10,39 @@ if getgenv().AutoKillGlobal then
         return char:FindFirstChild("RightHand") or char:FindFirstChild("Right Arm")
     end
 
-    local function attackAllPlayers()
-        local hand = getHand()
-        if not hand or not hand:IsDescendantOf(workspace) then return end
+    local hand -- guardamos la mano para reusar
 
-        for _, other in pairs(game.Players:GetPlayers()) do
-            if other ~= player and other.Character then
-                local targetPart = other.Character:FindFirstChild("HumanoidRootPart")
-                if targetPart and targetPart:IsDescendantOf(workspace) then
-                    for _ = 1, 2 do
-                        firetouchinterest(hand, targetPart, 0)
-                        task.wait(0.01)
-                        firetouchinterest(hand, targetPart, 1)
-                    end
-                end
-            end
-        end
-    end
-
-    player.CharacterAdded:Connect(function()
+    player.CharacterAdded:Connect(function(char)
         task.wait(1)
-        -- Ya no se equipa el Punch aquí
+        hand = getHand()
+        -- Aquí podrías intentar equipar el Punch si tuvieras ese control
     end)
+
+    hand = getHand()
 
     task.spawn(function()
         while getgenv().AutoKillGlobal do
-            pcall(attackAllPlayers)
-            task.wait(0.08)
+            if not hand or not hand:IsDescendantOf(workspace) then
+                hand = getHand()
+            end
+            if hand and hand:IsDescendantOf(workspace) then
+                for _, other in pairs(game.Players:GetPlayers()) do
+                    if other ~= player and other.Character then
+                        local targetPart = other.Character:FindFirstChild("HumanoidRootPart")
+                        if targetPart and targetPart:IsDescendantOf(workspace) then
+                            pcall(function()
+                                firetouchinterest(hand, targetPart, 0)
+                                task.wait(0.05) -- pausa razonable
+                                firetouchinterest(hand, targetPart, 1)
+                            end)
+                            task.wait(0.05) -- pausa entre jugadores
+                        end
+                    end
+                end
+            else
+                task.wait(0.5) -- espera a que reaparezca la mano
+            end
+            task.wait(0.1) -- pausa general para no saturar
         end
         print("🛑 AutoKill Global DESACTIVADO")
     end)
